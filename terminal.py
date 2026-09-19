@@ -80,11 +80,11 @@ def menu(options, title, subtitle=None):
         )
 
         lines.append(
-            (GRAY, "                 Terminal Git Manager")
+            (GRAY, "                  Terminal Git Manager")
         )
 
         lines.append(
-            (CYAN, "                     │\n")
+            (CYAN, "                    │\n")
         )
 
         lines.append(
@@ -316,27 +316,27 @@ while True:
 
         command_options = [
 
-            ("⚡  Quick Push", "quick_push"),
+            ("●  Quick Push", "quick_push"),
 
             ("●  Git Status", "status"),
 
-            ("↓  Git Pull", "pull"),
+            ("●  Git Pull", "pull"),
 
-            ("↑  Git Push", "push"),
+            ("●  Git Push", "push"),
 
-            ("◉  Git Log", "log"),
+            ("●  Git Log", "log"),
 
-            ("🌿  Git Branch", "branch"),
+            ("●  Git Branch", "branch"),
 
-            ("⇩  Git Fetch", "fetch"),
+            ("●  Git Fetch", "fetch"),
 
-            ("＋  Git Add", "add"),
+            ("●  Git Add", "add"),
 
             ("✓  Git Commit", "commit"),
 
             ("⇄  Git Switch", "switch"),
 
-            ("🔀  Git Merge", "merge"),
+            ("●  Git Merge", "merge"),
 
             ("←  Back to Projects", "back"),
 
