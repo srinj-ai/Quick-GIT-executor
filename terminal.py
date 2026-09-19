@@ -9,7 +9,7 @@ from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.key_binding import KeyBindings
 
 
-target_directory = r"C:\Users\User\Desktop\github"
+target_directory = os.getenv("DIRECTORY")
 
 
 def menu(options, title):

@@ -1,0 +1,3 @@
+.env
+__pycache__/
+folders_with_path.csv
