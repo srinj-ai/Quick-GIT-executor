@@ -72,7 +72,7 @@ def menu(options, title, subtitle=None):
         )
 
         lines.append(
-            (CYAN, "                         │\n")
+            (CYAN, "                          │\n")
         )
 
         lines.append(
@@ -651,7 +651,7 @@ os.system("cls")
 print()
 print("╭──────────────────────────────────────────────╮")
 print("│                                              │")
-print("│              ⚡ GITQUICK                     │")
+print("│                 GITQUICK                     │")
 print("│                                              │")
 print("│          Git Manager closed.                 │")
 print("│                                              │")
