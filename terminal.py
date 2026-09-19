@@ -9,7 +9,13 @@ from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.key_binding import KeyBindings
 
 
+git.load_environment()
 target_directory = os.getenv("DIRECTORY")
+
+if not target_directory:
+    raise RuntimeError(
+        "DIRECTORY is not set. Add DIRECTORY = r'C:\\path\\to\\projects' to .env or set it in your environment."
+    )
 
 
 def menu(options, title):
@@ -111,15 +117,16 @@ while True:
     while True:
 
         command_options = [
+            ("Quick Push", "quick_push"),
             ("Git Status", "status"),
             ("Git Pull", "pull"),
-            ("Git Push", "push"),
+            
             ("Git Log", "log"),
             ("Git Branch", "branch"),
             ("Git Fetch", "fetch"),
             ("Git Add", "add"),
             ("Git Commit", "commit"),
-            ("Quick Push", "quick_push"),
+            ("Git Push", "push"),
             ("Git Switch", "switch"),
             ("Git Merge", "merge"),
             ("Back to Projects", "back"),
