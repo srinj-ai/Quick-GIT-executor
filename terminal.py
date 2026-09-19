@@ -127,7 +127,7 @@ def menu(options, title, subtitle=None):
                 lines.append(
                     (
                         SELECTED,
-                        f"  ❯  {name}  \n"
+                        f"  >  {name}  \n"  # ❯
                     )
                 )
 
@@ -270,7 +270,7 @@ for _, row in df.iterrows():
 
     project_options.append(
         (
-            f"📁  {folder_name}",
+            f"●  {folder_name}",
             project_path
         )
     )
@@ -284,7 +284,7 @@ while True:
 
     selected_project = menu(
         project_options + [
-            ("🚪  Exit", "exit")
+            ("●  Exit", "exit")
         ],
         "SELECT PROJECT",
         "Choose a repository to manage"
@@ -332,22 +332,22 @@ while True:
 
             ("●  Git Add", "add"),
 
-            ("✓  Git Commit", "commit"),
+            ("●  Git Commit", "commit"),
 
-            ("⇄  Git Switch", "switch"),
+            ("●  Git Switch", "switch"),
 
             ("●  Git Merge", "merge"),
 
-            ("←  Back to Projects", "back"),
+            ("●  Back to Projects", "back"),
 
-            ("🚪  Exit", "exit")
+            ("●  Exit", "exit")
         ]
 
 
         command = menu(
             command_options,
             "GIT COMMANDS",
-            f"📁  {project_name}"
+            f"●  {project_name}"
         )
 
 
@@ -359,7 +359,7 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
+            print(f"●  {project_name}\n")
             print("●  Git Status\n")
 
             git.git_status(
@@ -379,8 +379,8 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("↓  Git Pull\n")
+            print(f"●  {project_name}\n")
+            print("●  Git Pull\n")
 
             git.git_pull(
                 project_directory
@@ -399,8 +399,8 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("↑  Git Push\n")
+            print(f"●  {project_name}\n")
+            print("●  Git Push\n")
 
             git.git_push(
                 project_directory
@@ -419,8 +419,8 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("◉  Git Log\n")
+            print(f"●  {project_name}\n")
+            print("●  Git Log\n")
 
             git.git_log(
                 project_directory
@@ -439,8 +439,8 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("🌿  Git Branch\n")
+            print(f"●  {project_name}\n")
+            print("●  Git Branch\n")
 
             git.git_branch(
                 project_directory
@@ -459,8 +459,8 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("⇩  Git Fetch\n")
+            print(f"●  {project_name}\n")
+            print("●  Git Fetch\n")
 
             git.git_fetch(
                 project_directory
@@ -479,8 +479,8 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("＋  Git Add\n")
+            print(f"●  {project_name}\n")
+            print("●  Git Add\n")
 
             git.git_add(
                 project_directory
@@ -499,8 +499,8 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("✓  Git Commit\n")
+            print(f"●  {project_name}\n")
+            print("●  Git Commit\n")
 
             msg = input(
                 "Commit message: "
@@ -532,9 +532,9 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("⚡  QUICK PUSH")
-            print("   Add → Commit → Push\n")
+            print(f"●  {project_name}\n")
+            print("●  QUICK PUSH")
+            print("   ● Add → Commit → Push\n")
 
             msg = input(
                 "Commit message: "
@@ -566,8 +566,8 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("⇄  Git Switch\n")
+            print(f"●  {project_name}\n")
+            print("●  Git Switch\n")
 
             branch_name = input(
                 "Branch name: "
@@ -599,8 +599,8 @@ while True:
 
             os.system("cls")
 
-            print(f"📁  {project_name}\n")
-            print("🔀  Git Merge\n")
+            print(f"●  {project_name}\n")
+            print("●  Git Merge\n")
 
             branch_name = input(
                 "Branch to merge: "
