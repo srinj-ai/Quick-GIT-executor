@@ -4,66 +4,242 @@ import gitquick as git
 
 from prompt_toolkit import Application
 from prompt_toolkit.layout import Layout
-from prompt_toolkit.layout.containers import Window, HSplit
+from prompt_toolkit.layout.containers import Window
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.key_binding import KeyBindings
 
 
+# ============================================================
+# CONFIG
+# ============================================================
+
 git.load_environment()
+
 target_directory = os.getenv("DIRECTORY")
 
 if not target_directory:
     raise RuntimeError(
-        "DIRECTORY is not set. Add DIRECTORY = r'C:\\path\\to\\projects' to .env or set it in your environment."
+        "DIRECTORY is not set.\n"
+        "Add DIRECTORY=r'C:\\path\\to\\projects' to your .env file."
     )
 
 
-def menu(options, title):
+# ============================================================
+# STYLES
+# ============================================================
+
+CYAN = "bold cyan"
+WHITE = "bold white"
+GRAY = "ansibrightblack"
+GREEN = "bold green"
+YELLOW = "bold yellow"
+RED = "bold red"
+BLUE = "bold blue"
+MAGENTA = "bold magenta"
+
+# IMPORTANT:
+# prompt_toolkit uses "bg:cyan", NOT "bg=cyan"
+SELECTED = "bold black bg:cyan"
+
+
+# ============================================================
+# MENU
+# ============================================================
+
+def menu(options, title, subtitle=None):
+
     selected = 0
 
     def get_text():
-        lines = [
-            (f"bold cyan", f"===== {title} =====\n\n")
-        ]
 
-        for i, option in enumerate(options):
-            if i == selected:
+        lines = []
+
+        # ----------------------------------------------------
+        # HEADER
+        # ----------------------------------------------------
+
+        lines.append(
+            (CYAN,
+             "╭──────────────────────────────────────────────────────────╮\n")
+        )
+
+        lines.append(
+            (CYAN, "│")
+        )
+
+        lines.append(
+            (WHITE, "                      ⚡ GITQUICK")
+        )
+
+        lines.append(
+            (CYAN, "                         │\n")
+        )
+
+        lines.append(
+            (CYAN, "│")
+        )
+
+        lines.append(
+            (GRAY, "                 Terminal Git Manager")
+        )
+
+        lines.append(
+            (CYAN, "                     │\n")
+        )
+
+        lines.append(
+            (CYAN,
+             "╰──────────────────────────────────────────────────────────╯\n\n")
+        )
+
+
+        # ----------------------------------------------------
+        # TITLE
+        # ----------------------------------------------------
+
+        lines.append(
+            (WHITE, f"  {title}\n")
+        )
+
+        if subtitle:
+            lines.append(
+                (GRAY, f"  {subtitle}\n")
+            )
+
+        lines.append(
+            (
+                GRAY,
+                "  ────────────────────────────────────────────────────────\n\n"
+            )
+        )
+
+
+        # ----------------------------------------------------
+        # OPTIONS
+        # ----------------------------------------------------
+
+        for index, option in enumerate(options):
+
+            name = option[0]
+
+            if index == selected:
+
                 lines.append(
-                    ("bold green", f"  > {option[0]}\n")
+                    (
+                        SELECTED,
+                        f"  ❯  {name}  \n"
+                    )
                 )
+
             else:
+
                 lines.append(
-                    ("", f"    {option[0]}\n")
+                    (
+                        WHITE,
+                        f"     {name}\n"
+                    )
                 )
+
+
+        # ----------------------------------------------------
+        # FOOTER
+        # ----------------------------------------------------
+
+        lines.append(
+            (
+                GRAY,
+                "\n  ────────────────────────────────────────────────────────\n"
+            )
+        )
+
+        lines.append(
+            (
+                GRAY,
+                "  ↑ ↓  Navigate     ENTER  Select     Q  Quit\n"
+            )
+        )
 
         return lines
 
-    control = FormattedTextControl(get_text)
-    window = Window(content=control)
 
-    kb = KeyBindings()
+    # --------------------------------------------------------
+    # UI
+    # --------------------------------------------------------
 
-    @kb.add("up")
-    def _(event):
+    control = FormattedTextControl(
+        get_text
+    )
+
+    window = Window(
+        content=control,
+        always_hide_cursor=True
+    )
+
+    layout = Layout(window)
+
+
+    # --------------------------------------------------------
+    # KEYBOARD
+    # --------------------------------------------------------
+
+    bindings = KeyBindings()
+
+
+    @bindings.add("up")
+    def move_up(event):
+
         nonlocal selected
-        selected = (selected - 1) % len(options)
 
-    @kb.add("down")
-    def _(event):
+        selected = (
+            selected - 1
+        ) % len(options)
+
+        event.app.invalidate()
+
+
+    @bindings.add("down")
+    def move_down(event):
+
         nonlocal selected
-        selected = (selected + 1) % len(options)
 
-    @kb.add("enter")
-    def _(event):
-        event.app.exit(result=options[selected][1])
+        selected = (
+            selected + 1
+        ) % len(options)
 
-    @kb.add("q")
-    def _(event):
-        event.app.exit(result="exit")
+        event.app.invalidate()
+
+
+    @bindings.add("enter")
+    def select(event):
+
+        event.app.exit(
+            result=options[selected][1]
+        )
+
+
+    @bindings.add("q")
+    def quit_menu(event):
+
+        event.app.exit(
+            result="exit"
+        )
+
+
+    @bindings.add("escape")
+    def escape(event):
+
+        event.app.exit(
+            result="back"
+        )
+
+
+    # --------------------------------------------------------
+    # APPLICATION
+    # --------------------------------------------------------
 
     app = Application(
-        layout=Layout(window),
-        key_bindings=kb,
+        layout=layout,
+        key_bindings=bindings,
         full_screen=True,
         mouse_support=False
     )
@@ -71,14 +247,20 @@ def menu(options, title):
     return app.run()
 
 
-# Generate project list
+# ============================================================
+# LOAD PROJECTS
+# ============================================================
+
 git.get_folder(target_directory)
 
-df = pd.read_csv("folders_with_path.csv")
+df = pd.read_csv(
+    "folders_with_path.csv"
+)
 
 project_options = []
 
 for _, row in df.iterrows():
+
     folder_name = row["Folder_Name"]
 
     project_path = os.path.join(
@@ -87,195 +269,391 @@ for _, row in df.iterrows():
     )
 
     project_options.append(
-        (folder_name, project_path)
+        (
+            f"📁  {folder_name}",
+            project_path
+        )
     )
 
 
-# =========================
+# ============================================================
 # MAIN LOOP
-# =========================
+# ============================================================
 
 while True:
 
     selected_project = menu(
         project_options + [
-            ("Exit", "exit")
+            ("🚪  Exit", "exit")
         ],
-        "SELECT PROJECT"
+        "SELECT PROJECT",
+        "Choose a repository to manage"
     )
+
+
+    # --------------------------------------------------------
+    # EXIT
+    # --------------------------------------------------------
 
     if selected_project == "exit":
         break
 
+
     project_directory = selected_project
 
+    project_name = os.path.basename(
+        os.path.normpath(
+            project_directory
+        )
+    )
 
-    # =========================
-    # GIT MENU
-    # =========================
+
+    # ========================================================
+    # GIT COMMAND MENU
+    # ========================================================
 
     while True:
 
         command_options = [
-            ("Quick Push", "quick_push"),
-            ("Git Status", "status"),
-            ("Git Pull", "pull"),
-            
-            ("Git Log", "log"),
-            ("Git Branch", "branch"),
-            ("Git Fetch", "fetch"),
-            ("Git Add", "add"),
-            ("Git Commit", "commit"),
-            ("Git Push", "push"),
-            ("Git Switch", "switch"),
-            ("Git Merge", "merge"),
-            ("Back to Projects", "back"),
-            ("Exit", "exit")
+
+            ("⚡  Quick Push", "quick_push"),
+
+            ("●  Git Status", "status"),
+
+            ("↓  Git Pull", "pull"),
+
+            ("↑  Git Push", "push"),
+
+            ("◉  Git Log", "log"),
+
+            ("🌿  Git Branch", "branch"),
+
+            ("⇩  Git Fetch", "fetch"),
+
+            ("＋  Git Add", "add"),
+
+            ("✓  Git Commit", "commit"),
+
+            ("⇄  Git Switch", "switch"),
+
+            ("🔀  Git Merge", "merge"),
+
+            ("←  Back to Projects", "back"),
+
+            ("🚪  Exit", "exit")
         ]
+
 
         command = menu(
             command_options,
-            "GIT COMMANDS"
+            "GIT COMMANDS",
+            f"📁  {project_name}"
         )
 
 
-        # =========================
-        # GIT COMMANDS
-        # =========================
+        # ====================================================
+        # STATUS
+        # ====================================================
 
         if command == "status":
 
             os.system("cls")
 
-            git.git_status(project_directory)
+            print(f"📁  {project_name}\n")
+            print("●  Git Status\n")
 
-            input("\nPress Enter to continue...")
+            git.git_status(
+                project_directory
+            )
 
+            input(
+                "\nPress Enter to continue..."
+            )
+
+
+        # ====================================================
+        # PULL
+        # ====================================================
 
         elif command == "pull":
 
             os.system("cls")
 
-            git.git_pull(project_directory)
+            print(f"📁  {project_name}\n")
+            print("↓  Git Pull\n")
 
-            input("\nPress Enter to continue...")
+            git.git_pull(
+                project_directory
+            )
 
+            input(
+                "\nPress Enter to continue..."
+            )
+
+
+        # ====================================================
+        # PUSH
+        # ====================================================
 
         elif command == "push":
 
             os.system("cls")
 
-            git.git_push(project_directory)
+            print(f"📁  {project_name}\n")
+            print("↑  Git Push\n")
 
-            input("\nPress Enter to continue...")
+            git.git_push(
+                project_directory
+            )
 
+            input(
+                "\nPress Enter to continue..."
+            )
+
+
+        # ====================================================
+        # LOG
+        # ====================================================
 
         elif command == "log":
 
             os.system("cls")
 
-            git.git_log(project_directory)
+            print(f"📁  {project_name}\n")
+            print("◉  Git Log\n")
 
-            input("\nPress Enter to continue...")
+            git.git_log(
+                project_directory
+            )
 
+            input(
+                "\nPress Enter to continue..."
+            )
+
+
+        # ====================================================
+        # BRANCH
+        # ====================================================
 
         elif command == "branch":
 
             os.system("cls")
 
-            git.git_branch(project_directory)
+            print(f"📁  {project_name}\n")
+            print("🌿  Git Branch\n")
 
-            input("\nPress Enter to continue...")
+            git.git_branch(
+                project_directory
+            )
 
+            input(
+                "\nPress Enter to continue..."
+            )
+
+
+        # ====================================================
+        # FETCH
+        # ====================================================
 
         elif command == "fetch":
 
             os.system("cls")
 
-            git.git_fetch(project_directory)
+            print(f"📁  {project_name}\n")
+            print("⇩  Git Fetch\n")
 
-            input("\nPress Enter to continue...")
+            git.git_fetch(
+                project_directory
+            )
 
+            input(
+                "\nPress Enter to continue..."
+            )
+
+
+        # ====================================================
+        # ADD
+        # ====================================================
 
         elif command == "add":
 
             os.system("cls")
 
-            git.git_add(project_directory)
+            print(f"📁  {project_name}\n")
+            print("＋  Git Add\n")
 
-            input("\nPress Enter to continue...")
+            git.git_add(
+                project_directory
+            )
 
+            input(
+                "\nPress Enter to continue..."
+            )
+
+
+        # ====================================================
+        # COMMIT
+        # ====================================================
 
         elif command == "commit":
 
             os.system("cls")
 
-            msg = input("Enter commit message: ")
+            print(f"📁  {project_name}\n")
+            print("✓  Git Commit\n")
 
-            git.git_commit(
-                project_directory,
-                msg
+            msg = input(
+                "Commit message: "
+            ).strip()
+
+            if msg:
+
+                git.git_commit(
+                    project_directory,
+                    msg
+                )
+
+            else:
+
+                print(
+                    "\nCommit cancelled."
+                )
+
+            input(
+                "\nPress Enter to continue..."
             )
 
-            input("\nPress Enter to continue...")
 
+        # ====================================================
+        # QUICK PUSH
+        # ====================================================
 
         elif command == "quick_push":
 
             os.system("cls")
 
-            msg = input("Enter commit message: ")
+            print(f"📁  {project_name}\n")
+            print("⚡  QUICK PUSH")
+            print("   Add → Commit → Push\n")
 
-            git.git_quick_push(
-                project_directory,
-                msg
+            msg = input(
+                "Commit message: "
+            ).strip()
+
+            if msg:
+
+                git.git_quick_push(
+                    project_directory,
+                    msg
+                )
+
+            else:
+
+                print(
+                    "\nQuick Push cancelled."
+                )
+
+            input(
+                "\nPress Enter to continue..."
             )
 
-            input("\nPress Enter to continue...")
 
+        # ====================================================
+        # SWITCH
+        # ====================================================
 
         elif command == "switch":
 
             os.system("cls")
 
+            print(f"📁  {project_name}\n")
+            print("⇄  Git Switch\n")
+
             branch_name = input(
-                "Enter branch name: "
+                "Branch name: "
+            ).strip()
+
+            if branch_name:
+
+                git.git_switch(
+                    project_directory,
+                    branch_name
+                )
+
+            else:
+
+                print(
+                    "\nSwitch cancelled."
+                )
+
+            input(
+                "\nPress Enter to continue..."
             )
 
-            git.git_switch(
-                project_directory,
-                branch_name
-            )
 
-            input("\nPress Enter to continue...")
-
+        # ====================================================
+        # MERGE
+        # ====================================================
 
         elif command == "merge":
 
             os.system("cls")
 
+            print(f"📁  {project_name}\n")
+            print("🔀  Git Merge\n")
+
             branch_name = input(
-                "Enter branch to merge: "
+                "Branch to merge: "
+            ).strip()
+
+            if branch_name:
+
+                git.git_merge(
+                    project_directory,
+                    branch_name
+                )
+
+            else:
+
+                print(
+                    "\nMerge cancelled."
+                )
+
+            input(
+                "\nPress Enter to continue..."
             )
 
-            git.git_merge(
-                project_directory,
-                branch_name
-            )
 
-            input("\nPress Enter to continue...")
-
+        # ====================================================
+        # BACK
+        # ====================================================
 
         elif command == "back":
 
             break
 
 
+        # ====================================================
+        # EXIT
+        # ====================================================
+
         elif command == "exit":
 
             raise SystemExit
 
 
+# ============================================================
+# EXIT SCREEN
+# ============================================================
+
 os.system("cls")
 
-print("Git Manager closed.")
+print()
+print("╭──────────────────────────────────────────────╮")
+print("│                                              │")
+print("│              ⚡ GITQUICK                     │")
+print("│                                              │")
+print("│          Git Manager closed.                 │")
+print("│                                              │")
+print("╰──────────────────────────────────────────────╯")
+print()
