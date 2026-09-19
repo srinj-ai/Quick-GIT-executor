@@ -68,7 +68,7 @@ def menu(options, title, subtitle=None):
         )
 
         lines.append(
-            (WHITE, "                      ⚡ GITQUICK")
+            (WHITE, "                        GITQUICK")
         )
 
         lines.append(
