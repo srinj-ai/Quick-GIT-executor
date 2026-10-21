@@ -1,3 +1,9 @@
+"""GitQuick Terminal Interface.
+
+This module provides an interactive terminal user interface (TUI) built using `prompt_toolkit`
+for navigating project directories and executing Git commands with menu-driven choices.
+"""
+
 import os
 import pandas as pd
 import gitquick as git
@@ -47,7 +53,16 @@ SELECTED = "bold black bg:cyan"
 # ============================================================
 
 def menu(options, title, subtitle=None):
+    """Render an interactive terminal menu using prompt_toolkit.
 
+    Args:
+        options (list of tuple): A list of tuples where each item is `(label, value)`.
+        title (str): Main header title to display at top of menu screen.
+        subtitle (str, optional): Subtitle or repository context display.
+
+    Returns:
+        any: The selected option's value or string command ("exit", "back").
+    """
     selected = 0
 
     def get_text():
